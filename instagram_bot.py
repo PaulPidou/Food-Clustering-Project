@@ -6,7 +6,6 @@ import sys
 class InstaFood():
 
     def __init__(self):
-        self.tagsToAvoid = ['like4like', 'likeforlike', 'instafollow', 'follow4follow', 'f4f', 'l4l', '20likes', 'instalike', 'instago', 'instadaily', 'dailygram', 'instagramhub', 'webstagram', 'tagsforlikes', 'tagsforlikesapp', 'followme', 'instagood', 'instacool', 'instagramers', 'picoftheday', 'photooftheday', 'pictureoftheday', 'bestoftheday', 'igers', 'tflers', 'instamood', 'follow', 'like', 'tbt', 'swag', 'iphoneonly', 'nofilter', 'tweegram']
         self.foodWords, self.locationWords = ['food', 'condiment', 'dish', 'cake', 'fruit', 'cuisine', 'meat'], ['country', 'region']
         self.foodTagsFile, self.noFoodTagsFile = 'relatedTags.txt', 'unrelatedTags.txt'
         self.instaBot()
@@ -20,40 +19,25 @@ class InstaFood():
         max_tag = str(max_tag)
 
         for post in posts:
+            count = 0
             print post.id
             for tag in post.tags:
+                
                 tagName = TextBlob(tag.name)
                 tagName = tagName.words[0].singularize()
-                if len(tagName) >= 3 and tagName not in self.tagsToAvoid:
+                
+                if len(tagName) >= 3 and tagName != 'food':
                     lang = tagName.detect_language()
                     print tagName, '->', lang
                     if lang != 'en':
                         tagName = tagName.translate(from_lang=lang, to='en')
                         print "Traduction: ", tagName
 
-                    try:
-                        definitions = Word(tagName).definitions
-                    except:
-                        print "[-] This tag doesn't match any definition."
-                        self.updateTags(self.noFoodTagsFile, tagName)
-                        continue
-                        
-                    print definitions
-                    isRelated = self.isTagRelatedToFood(tag)
-                    if isRelated:
-                        print "Tag related to food."
-                    elif isRelated == False:
-                        print "Tag not related to food."
-                    else: # isRelated == None
-                        if self.isDefRelatedTo(definitions, self.foodWords):
-                            self.updateTags(self.foodTagsFile, tagName)
-                            print "Tag related to food."
-                        else:
-                            self.updateTags(self.noFoodTagsFile, tagName)
-                            print "Tag not related to food."
-
-                    if self.isDefRelatedTo(definitions, self.locationWords):
-                        print "Location"
+                    if self.isRelatedToFood(tagName):
+                        count += 1
+                        print "[+] Tag related to food."
+                    else:
+                        print "[-] Tag not related to food."
             print post.user
             try:
                 print post.location
@@ -61,6 +45,10 @@ class InstaFood():
                 print "No location"
             print post.created_time
             print post.images['standard_resolution'].url
+            if count > 0:
+                print "[+] Post to save."
+            else:
+                print "[-] Post to forget."
             print '-------------------'
 
     def isRelatedToFood(self, tagName):
