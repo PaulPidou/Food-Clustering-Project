@@ -20,61 +20,71 @@ class InstaFood():
         temp, max_tag = next.split('max_tag_id=')
         max_tag = str(max_tag)
 
-        for post in posts:
-            count = 0
-            langs = {}
-            
-            print post.id
-            
-            for tag in post.tags:
-                
-                tagName = TextBlob(tag.name)
-                tagName = tagName.words[0].singularize()
-                
-                if len(tagName) >= 3 and tagName != 'food':
-                    lang = tagName.detect_language()
-                    print tagName, '->', lang
-                    langs.setdefault(lang, 0);
-                    langs[lang] += 1
+        while True:
+            print "[*] " + str(len(posts)) + " posts retrieved."
+            for post in posts:
+                if self.isNewPost("log/posts.log", post.id):
+                    count = 0
+                    langs = {}
+                    print post.id
                     
-                    if lang != 'en':
-                        tagName = tagName.translate(from_lang=lang, to='en')
-                        print "Traduction: ", tagName
+                    for tag in post.tags:
+                        
+                        tagName = TextBlob(tag.name)
+                        tagName = tagName.words[0].singularize()
+                        
+                        if len(tagName) >= 3 and tagName != 'food':
+                            lang = tagName.detect_language()
+                            print tagName, '->', lang
+                            langs.setdefault(lang, 0);
+                            langs[lang] += 1
+                            
+                            if lang != 'en':
+                                tagName = tagName.translate(from_lang=lang, to='en')
+                                print "Traduction: ", tagName
 
-                    tagRelatedToFood = self.isTagRelatedToFood(tagName)
-                    if tagRelatedToFood:
-                        count += 1
-                        print "[+] Tag related to food."
-                    elif tagRelatedToFood == False:
-                        print "[-] Tag not related to food."
-                    else: # tagRelatedToFood == None
-                        if self.isRelatedTo(tagName, self.foodWords):
-                            count += 1
-                            self.updateTags(self.foodTagsFile, tagName)
-                            self.writeTagLog("log/newTags.log", tag, True)
-                            print "[+] Tag related to food."
-                        else:
-                            self.updateTags(self.noFoodTagsFile, tagName)
-                            self.writeTagLog("log/newTags.log", tag, False)
-                            print "[-] Tag not related to food."
-            if count > 0:
-                self.savePost("posts.txt", post)
-                self.writePostLog("log/posts.log", post, langs, True)
-                print "[+] Post saved."
-            else:
-                self.writePostLog("log/posts.log", post, langs, False)
-                print "[-] Post forget."
-            print '-------------------'
+                            tagRelatedToFood = self.isTagRelatedToFood(tagName)
+                            if tagRelatedToFood:
+                                count += 1
+                                print "[+] Tag related to food."
+                            elif tagRelatedToFood == False:
+                                print "[-] Tag not related to food."
+                            else: # tagRelatedToFood == None
+                                if self.isRelatedTo(tagName, self.foodWords):
+                                    count += 1
+                                    self.updateTags(self.foodTagsFile, tagName)
+                                    self.writeTagLog("log/newTags.log", tag, True)
+                                    print "[+] Tag related to food."
+                                else:
+                                    self.updateTags(self.noFoodTagsFile, tagName)
+                                    self.writeTagLog("log/newTags.log", tag, False)
+                                    print "[-] Tag not related to food."
+                    if count > 0:
+                        self.savePost("posts.txt", post)
+                        self.writePostLog("log/posts.log", post, langs, True)
+                        print "[+] Post saved."
+                    else:
+                        self.writePostLog("log/posts.log", post, langs, False)
+                        print "[-] Post forget."
+                    print '-------------------'
+                
+            posts, next = api.tag_recent_media(tag_name='food', max_tag_id=max_tag)
+            temp, max_tag = next.split('max_tag_id=')
+            max_tag = str(max_tag)
+
+            if not next:
+                break
 
     def isRelatedTo(self, tagName, wordsList):
         try:
             page = wikipedia.WikipediaPage(title=tagName)
+            definitions = Word(tagName).definitions
         except:
             return False
 
         count = 0
 
-        for d in [page.categories, [page.summary], Word(tagName).definitions]:
+        for d in [page.categories, [page.summary], definitions]:
             if self.isDefRelatedTo(d, wordsList):
                 count += 1
 
@@ -129,6 +139,21 @@ class InstaFood():
         except:
             myFile.write(tag.encode('utf-8'))
         myFile.write('\n')
+        myFile.close()
+        return True
+
+    def isNewPost(self, file, post_id):
+        try:
+            myFile = open(file, 'r')
+        except:
+            print "[-] Fail to open the file."
+            return True
+
+        for line in myFile:
+            column = line.split('\t')
+            if column[2] == str(post_id):
+                myFile.close()
+                return False
         myFile.close()
         return True
 
