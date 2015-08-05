@@ -28,15 +28,14 @@ class InstaFood():
                     langs = {}
                     print post.id
                     
-                    for tag in post.tags:
-                        
+                    for tag in post.tags:                       
                         tagName = TextBlob(tag.name)
                         tagName = tagName.words[0].singularize()
                         
                         if len(tagName) >= 3 and tagName != 'food':
                             lang = tagName.detect_language()
                             print tagName, '->', lang
-                            langs.setdefault(lang, 0);
+                            langs.setdefault(lang, 0)
                             langs[lang] += 1
                             
                             if lang != 'en':
