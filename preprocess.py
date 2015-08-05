@@ -22,14 +22,7 @@ class PreProcess():
             print "[-] Fail to open the file."
             return False
 
-        
         self.foodWords, self.posTag = ['food', 'foodie', 'cuisine'], ['NN', 'NNP']
-        cpt, start = 0, 1883
-
-        for line in myFile:
-            cpt += 1
-            if cpt == start:
-                break
 
         print "Start"
         for line in myFile:

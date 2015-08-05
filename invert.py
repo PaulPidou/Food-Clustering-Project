@@ -1,7 +1,5 @@
 #!/usr/bin/python
 
-import numpy as np
-
 class Invert():
 
     def __init__(self, file):
