@@ -24,7 +24,6 @@ class PreProcess():
 
         self.foodWords, self.posTag = ['food', 'foodie', 'cuisine'], ['NN', 'NNP']
 
-        print "Start"
         for line in myFile:
             summary, first = "", True
             infos = line.split('\t')
