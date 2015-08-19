@@ -34,10 +34,10 @@ class KMeans():
             if not first:
                 centroids = newCentroids.copy()
             first = False
-            print "yolo"
             keysByCluster = self.getKeysByCluster(file, centroids)
             print "[*] Got posts by closest cluster."
             newCentroids = self.getNewCentroids(file, keysByCluster)
+            self.saveClusters("tmp/tmp"+str(count)+".txt", keysByCluster)
             print "[*] Got new positions of the centroids."
             if self.isSameCluster(centroids, newCentroids):
                 break
@@ -53,7 +53,7 @@ class KMeans():
             print "[-] Fail to open the file."
             return None
 
-        randoms = [0] * k
+        randoms = [0.0] * k
         centroid_ids = [None] * k
         for line in myFile:
             currentMin = min(randoms)
@@ -90,6 +90,7 @@ class KMeans():
                 dist = self.getDistance(val, coords)
                 if first:
                     minDist = dist
+                    minCentroid = key
                     first = False
                 else:
                     if dist < minDist:
@@ -144,7 +145,7 @@ class KMeans():
                     couple = tup.split(':')
                     coords.setdefault(couple[0], float(couple[1]))
                 coordinates.setdefault(infos[0], coords)
-                
+
         myFile.close()
         return coordinates
 
