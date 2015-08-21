@@ -3,15 +3,15 @@
 import math
 from textblob import TextBlob, Word
 import numpy as np
+import argparse, sys
 
 class TFIDF():
+    def __init__(self, preproceed_postsFile, tfidfFile):
+        self.calculatedScore(preproceed_postsFile, tfidfFile)
 
-    def __init__(self, file):
-        self.calculatedScore(file)
-
-    def calculatedScore(self, file):
+    def calculatedScore(self, preproceed_postsFile, tfidfFile):
         try:
-            myFile = open(file, 'r')
+            myFile = open(preproceed_postsFile, 'r')
         except:
             print "[-] Fail to open the file."
             return False
@@ -27,7 +27,7 @@ class TFIDF():
         myFile.close()
 
         tfidf = self.getTFIDF(count, self.invertedIndex)
-        self.saveTFIDF("tfidf.txt", tfidf)
+        self.saveTFIDF(tfidfFile, tfidf)
 
     def getTermFrequence(self, summary):
         termFreq = {}
@@ -75,4 +75,25 @@ class TFIDF():
         return True
 
 if __name__ == "__main__":
-    TFIDF("copy.txt")
+    preproceed_postsFile, tfidfFile = "preproceed_posts.txt", "tfidf.txt"
+
+    parser = argparse.ArgumentParser(description='Final project - TF-IDF module', epilog="Developed by Paul Pidou.")
+
+    parser.add_argument('-ppf', action="store", dest="preprocessFile", help="Source preproceed posts. By default: preproceed_posts.txt", nargs=1)
+    parser.add_argument('-tf', action="store", dest="tfidfFile", help="File to save the TF-IDF scores. By default: tfidf.txt", nargs=1) 
+
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+    args, unknown = parser.parse_known_args()
+
+    if unknown:
+        print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
+        print '[*] Exciting ...'
+        sys.exit(0)
+
+    if args.preprocessFile != None:
+        preproceed_postsFile = args.preprocessFile[0]
+    if args.tfidfFile != None:
+        tfidfFile = args.tfidfFile[0]
+        
+    TFIDF(preproceed_postsFile, tfidfFile)

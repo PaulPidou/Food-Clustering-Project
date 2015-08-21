@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
+import argparse, sys
+
 class Invert():
+    def __init__(self, tfidfFile, scorePostsFile):
+        self.invert(tfidfFile, scorePostsFile)
 
-    def __init__(self, file):
-        self.invert(file)
-
-    def invert(self, file):
+    def invert(self, tfidfFile, scorePostsFile):
         try:
-            myFile = open(file, 'r')
+            myFile = open(tfidfFile, 'r')
         except:
             print "[-] Fail to open the file."
             return False
@@ -32,7 +33,7 @@ class Invert():
             for i in range(len(val)):
                 normIndex[key].append((val[i][0], normValues[i]))
 
-        self.saveInvert("scored_post.txt", normIndex)
+        self.saveInvert(scorePostsFile, normIndex)
         return True
 
 
@@ -74,4 +75,25 @@ class Invert():
         return True
         
 if __name__ == "__main__":
-    Invert("tfidf.txt")
+    tfidfFile, scoredPostsFile = "tfidf.txt", "scored_posts.txt"
+
+    parser = argparse.ArgumentParser(description='Final project - Invert index module', epilog="Developed by Paul Pidou.")
+
+    parser.add_argument('-tf', action="store", dest="tfidfFile", help="Source TFIDF file. By default: tfidf.txt", nargs=1)
+    parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="File to save the score posts. By default: scored_posts.txt", nargs=1)
+
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+    args, unknown = parser.parse_known_args()
+
+    if unknown:
+        print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
+        print '[*] Exciting ...'
+        sys.exit(0)
+
+    if args.tfidfFile != None:
+        tfidfFile = args.tfidfFile[0]
+    if args.scoredPostsFile != None:
+        scoredPostsFile = args.scoredPostsFile[0]
+        
+    Invert(tfidfFile, scorePostsFile)

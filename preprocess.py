@@ -5,19 +5,19 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from textblob import TextBlob, Word
+import argparse, sys
 
 class PreProcess():
-
-    def __init__(self, file):
+    def __init__(self, postsFile, preproceed_postsFile):
         self.foodTagsFile = 'tags/relatedToFood.txt'
         self.stemmer = SnowballStemmer("english")
         self.stop_words = set(stopwords.words('english'))
 
-        self.main(file)
+        self.main(postsFile, preproceed_postsFile)
 
-    def main(self, file):
+    def main(self, postsFile, preproceed_postsFile):
         try:
-            myFile = open(file, 'r')
+            myFile = open(postsFile, 'r')
         except:
             print "[-] Fail to open the file."
             return False
@@ -27,6 +27,11 @@ class PreProcess():
         for line in myFile:
             summary, first = "", True
             infos = line.split('\t')
+
+            if not self.checkIfNew(preproceed_postsFile, infos[0]):
+                print "[*] Already treated this entry."
+                continue
+            
             toKeep = False
             for tag in infos[1].split('#'):
                 isShort = False
@@ -63,7 +68,7 @@ class PreProcess():
                                 summary += wiki
                             
             if toKeep:
-                self.savePost("preproceed_posts.txt", infos[0], summary)
+                self.savePost(preproceed_postsFile, infos[0], summary)
 
         myFile.close()
 
@@ -128,5 +133,43 @@ class PreProcess():
         myFile.close()
         return True
 
+    def checkIfNew(self, file, id_post):
+        try:
+            myFile = open(file, 'r')
+        except:
+            print "[-] Fail to open the file."
+            return False
+
+        for line in myFile:
+            infos = line.split('\t')
+
+            if infos[0] == id_post:
+                myFile.close()
+                return False
+
+        myFile.close()
+        return True
+
 if __name__ == "__main__":
-    PreProcess("posts.txt")
+    postsFile, preproceed_postsFile = "posts.txt", "preproceed_posts.txt"
+
+    parser = argparse.ArgumentParser(description='Final project - Preprocess module', epilog="Developed by Paul Pidou.")
+
+    parser.add_argument('-pf', action="store", dest="postsFile", help="Source posts file. By default: posts.txt", nargs=1) 
+    parser.add_argument('-ppf', action="store", dest="preprocessFile", help="File to save the preprocess posts. By default: preproceed_posts.txt", nargs=1)
+
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+    args, unknown = parser.parse_known_args()
+
+    if unknown:
+        print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
+        print '[*] Exciting ...'
+        sys.exit(0)
+
+    if args.postsFile != None:
+        postsFile = args.postsFile[0]
+    if args.preprocessFile != None:
+        preproceed_postsFile = args.preprocessFile[0]
+        
+    PreProcess(postsFile, preproceed_postsFile)

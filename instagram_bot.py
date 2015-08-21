@@ -3,17 +3,16 @@
 from instagram.client import InstagramAPI
 import wikipedia
 from textblob import TextBlob, Word
-import time, sys
+import time, argparse, sys
 import operator
 
 class InstaFood():
-
-    def __init__(self):
+    def __init__(self, file):
         self.foodWords, self.locationWords = ['food', 'condiment', 'dish', 'cake', 'fruit', 'cuisine', 'meat'], ['country', 'region']
         self.foodTagsFile, self.noFoodTagsFile = 'tags/relatedToFood.txt', 'tags/unrelatedToFood.txt'
-        self.instaBot()
+        self.instaBot(file)
         
-    def instaBot(self):
+    def instaBot(self, file):
         api = InstagramAPI(client_id='dced40dd759c4019838e1c654ad7ab08', client_secret='428421a5921c4af2ad0fcb5e4e744992')
         
         posts, next = api.tag_recent_media(tag_name='food', count=30)
@@ -40,7 +39,7 @@ class InstaFood():
                             
                             if lang != 'en':
                                 tagName = tagName.translate(from_lang=lang, to='en')
-                                print "Traduction: ", tagName
+                                print "[*] Traduction: ", tagName
 
                             tagRelatedToFood = self.isTagRelatedToFood(tagName)
                             if tagRelatedToFood:
@@ -59,7 +58,7 @@ class InstaFood():
                                     self.writeTagLog("log/newTags.log", tag, False)
                                     print "[-] Tag not related to food."
                     if count > 0:
-                        self.savePost("posts.txt", post)
+                        self.savePost(file, post)
                         self.writePostLog("log/posts.log", post, langs, True)
                         print "[+] Post saved."
                     else:
@@ -244,4 +243,22 @@ class InstaFood():
         
     
 if __name__ == "__main__":
-    InstaFood()
+    postsFile = "posts.txt"
+
+    parser = argparse.ArgumentParser(description='Final project - Instagram Bot module', epilog="Developed by Paul Pidou.")
+
+    parser.add_argument('-pf', action="store", dest="postsFile", help="File to save the instagram posts. By default: posts.txt", nargs=1)
+
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+    args, unknown = parser.parse_known_args()
+
+    if unknown:
+        print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
+        print '[*] Exciting ...'
+        sys.exit(0)
+
+    if args.postsFile != None:
+        postsFile = args.postsFile[0]
+        
+    InstaFood(postsFile)

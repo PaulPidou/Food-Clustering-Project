@@ -1,13 +1,13 @@
 #!/usr/bin/python
 
 import random, math
-import sys
+import operator
+import argparse, sys
 
 class KMeans():
-
-    def __init__(self, file):
+    def __init__(self, scoredPostsFile, clustersFile, wordClustersFile):
         try:
-            myFile = open(file, 'r')
+            myFile = open(scoredPostsFile, 'r')
         except:
             print "[-] Fail to open the file."
             sys.exit(0)
@@ -17,14 +17,15 @@ class KMeans():
             count += 1
         myFile.close()
 
-        self.main(file, int(math.sqrt(count/2)))
+        self.main(scoredPostsFile, int(math.sqrt(count/2)))
+        self.wordByCluster(scoredPostsFile, clustersFile, wordClustersFile)
 
-    def main(self, file, k):
+    def main(self, scoredPostsFile, clustersFile, k):
         print "[*] Number of K picked : " + str(k)
         first = True
         
-        centroid_ids = self.getInitCentroids(file, k)
-        centroids = self.getCoordinatesById(file, centroid_ids)
+        centroid_ids = self.getInitCentroids(scoredPostsFile, k)
+        centroids = self.getCoordinatesById(scoredPostsFile, centroid_ids)
 
         count = 0
 
@@ -34,17 +35,16 @@ class KMeans():
             if not first:
                 centroids = newCentroids.copy()
             first = False
-            keysByCluster = self.getKeysByCluster(file, centroids)
+            keysByCluster = self.getKeysByCluster(scoredPostsFile, centroids)
             print "[*] Got posts by closest cluster."
-            newCentroids = self.getNewCentroids(file, keysByCluster)
-            self.saveClusters("tmp/tmp"+str(count)+".txt", keysByCluster)
+            newCentroids = self.getNewCentroids(scoredPostsFile, keysByCluster)
             print "[*] Got new positions of the centroids."
             if self.isSameCluster(centroids, newCentroids):
                 break
 
         print "[+] Final clusters found in " + str(count) + " rounds."
         print "[*] Number of final clusters : " + str(len(keysByCluster.keys()))
-        self.saveClusters("clusters.txt", keysByCluster)
+        self.saveClusters(clustersFile, keysByCluster)
 
     def getInitCentroids(self, file, k):
         try:
@@ -67,6 +67,28 @@ class KMeans():
 
         myFile.close()
         return centroid_ids
+
+    def getCoordinatesById(self, file, ids):
+        try:
+            myFile = open(file, 'r')
+        except:
+            print "[-] Fail to open the file."
+            return None
+
+        coordinates, count = {}, 0
+        for line in myFile:
+            infos = line.split('\t')
+            
+            if infos[0] in ids:
+                coords = {}
+                for tup in infos[1].split('#'):
+                    couple = tup.split(':')
+                    coords.setdefault(couple[0], float(couple[1]))
+                coordinates.setdefault(count, coords)
+                count += 1
+
+        myFile.close()
+        return coordinates
 
     def getKeysByCluster(self, file, centroids):
         try:
@@ -125,29 +147,8 @@ class KMeans():
                     listCoords.append(coords)
             myFile.close()
             clusters.setdefault(key, self.getAverage(listCoords))
-            
+
         return clusters
-                
-    def getCoordinatesById(self, file, ids):
-        try:
-            myFile = open(file, 'r')
-        except:
-            print "[-] Fail to open the file."
-            return None
-
-        coordinates = {}
-        for line in myFile:
-            infos = line.split('\t')
-            
-            if infos[0] in ids:
-                coords = {}
-                for tup in infos[1].split('#'):
-                    couple = tup.split(':')
-                    coords.setdefault(couple[0], float(couple[1]))
-                coordinates.setdefault(infos[0], coords)
-
-        myFile.close()
-        return coordinates
 
     def getDistance(self, center, doc):
         pointA, pointB = [], []
@@ -189,7 +190,7 @@ class KMeans():
                 if k in coords.keys():
                     s += coords[k]
             avr.setdefault(k, float(s / len(listCoords)))
-
+            
         return avr
 
     def isSameCluster(self, currentCentroids, newCentroids):
@@ -212,9 +213,73 @@ class KMeans():
 
         for key, ids in keysByCluster.items():
             post_ids = " ".join(ids)
+            myFile.write(str(key))
+            myFile.write('\t')
             myFile.write(post_ids)
             myFile.write('\n')
         myFile.close()
+        return True
+
+    def wordByCluster(self, scoredPostsFile, clustersFile, saveFile):
+        try:
+            myFile = open(clustersFile, 'r')
+        except:
+            print "[-] Fail to open the file."
+            return False
+
+        keysByCluster = {}
+        for line in myFile:
+            infos = line.strip().split('\t')
+            ids = infos[1].split(" ")
+            keysByCluster.setdefault(infos[0], ids)
+        myFile.close()
+
+        clusters = self.getNewCentroids(scoredPostsFile, keysByCluster)
+
+        try:
+            myFile = open(saveFile, 'w')
+        except:
+            print "[-] Fail to open the file."
+            return False
         
+        for key, coords in clusters.items():
+            sorted_coords = sorted(coords.items(), key=operator.itemgetter(1), reverse=True)
+            first = True
+            myFile.write(str(key))
+            myFile.write('\t')
+            for word, value in sorted_coords:
+                if not first:
+                    myFile.write(" ")
+                first = False
+                myFile.write(word + ":" + str(value))
+            myFile.write('\n')
+        myFile.close()
+        return True
+                    
 if __name__ == "__main__":
-    KMeans("scored_posts.txt")
+    scoredPostsFile, clustersFile, wordClustersFile = "scored_posts.txt", "clusters.txt", "wordClusters.txt"
+
+    parser = argparse.ArgumentParser(description='Final project - Kmeans module', epilog="Developed by Paul Pidou.")
+
+    parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="Source posts file. By default: scored_posts.txt", nargs=1) 
+    parser.add_argument('-cf', action="store", dest="clustersFile", help="File to save the instagram ids by cluster. By default: clusters.txt", nargs=1)
+    parser.add_argument('-wcf', action="store", dest="wordClustersFile", help="File to save the main word by cluster. By default: wordClusters.txt", nargs=1)
+
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+    args, unknown = parser.parse_known_args()
+
+    if unknown:
+        print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
+        print '[*] Exciting ...'
+        sys.exit(0)
+
+    if args.scoredPostsFile != None:
+        scoredPostsFile = args.scoredPostsFile[0]
+    if args.clustersFile != None:
+        clustersFile = args.clustersFile[0]
+    if args.wordClustersFile != None:
+        wordClustersFile = args.wordClustersFile[0]
+        
+    KMeans(scoredPostsFile, clustersFile, wordClustersFile)
+    
