@@ -25,6 +25,7 @@ class KMeans():
         self.saveDistanceBetweenCluster(wordClustersFile, distFile)
 
     def main(self, scoredPostsFile, clustersFile, k):
+        "Apply the main process of the K-Means algorithm"
         print "[*] Number of K picked : " + str(k)
         first = True
         
@@ -51,6 +52,7 @@ class KMeans():
         self.saveClusters(clustersFile, keysByCluster)
 
     def getInitCentroids(self, file, k):
+        "Get the K initial random centroids"
         try:
             myFile = open(file, 'r')
         except:
@@ -73,6 +75,7 @@ class KMeans():
         return centroid_ids
 
     def getCoordinatesById(self, file, ids):
+        "Get the coordinates of the given list of centroids"
         try:
             myFile = open(file, 'r')
         except:
@@ -95,6 +98,7 @@ class KMeans():
         return coordinates
 
     def getKeysByCluster(self, file, centroids):
+        "Get the posts classify by cluster"
         try:
             myFile = open(file, 'r')
         except:
@@ -130,6 +134,7 @@ class KMeans():
         return keysByCluster
 
     def getNewCentroids(self, file, keysByCluster):
+        "Get the new position of the centroids"
         clusters = {}
 
         for key, ids in keysByCluster.items():
@@ -155,6 +160,7 @@ class KMeans():
         return clusters
 
     def getDistance(self, center, doc):
+        "Get the distance between a post and a centroid"
         pointA, pointB = [], []
         keys = []
         s = 0.0
@@ -181,6 +187,7 @@ class KMeans():
         return math.sqrt(s)
 
     def getAverage(self, listCoords):
+        "Get the average of the list of coordinates"
         keys, avr = [], {}
 
         for coords in listCoords:
@@ -198,6 +205,7 @@ class KMeans():
         return avr
 
     def isSameCluster(self, currentCentroids, newCentroids):
+        "Check if two list of centroids are identical"
         for key in currentCentroids.keys():
             if key not in newCentroids.keys():
                 return False
@@ -209,6 +217,7 @@ class KMeans():
         return True
 
     def saveClusters(self, file, keysByCluster):
+        "Save the final clusters found"
         try:
             myFile = open(file, 'w')
         except:
@@ -225,6 +234,7 @@ class KMeans():
         return True
 
     def wordByCluster(self, scoredPostsFile, clustersFile, saveFile):
+        "Save the coordinates of the final centroids"
         try:
             myFile = open(clustersFile, 'r')
         except:
@@ -261,6 +271,7 @@ class KMeans():
         return True
 
     def saveDistanceBetweenCluster(self, wordClusterFile, distanceCluster):
+        "Save the distances between the final centroids"
         try:
             wordFile = open(wordClusterFile, 'r')
         except:

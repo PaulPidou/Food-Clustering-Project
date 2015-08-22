@@ -13,6 +13,7 @@ class TFIDF():
         self.calculatedScore(preproceed_postsFile, tfidfFile)
 
     def calculatedScore(self, preproceed_postsFile, tfidfFile):
+        "TF-IDF scores calculation main process"
         try:
             myFile = open(preproceed_postsFile, 'r')
         except:
@@ -33,6 +34,7 @@ class TFIDF():
         self.saveTFIDF(tfidfFile, tfidf)
 
     def getTermFrequence(self, summary):
+        "Get the term frequency"
         termFreq = {}
         for word in summary.words:
             termFreq.setdefault(word, summary.word_counts[word])
@@ -40,11 +42,13 @@ class TFIDF():
         return termFreq
 
     def getInvertedIndex(self, post_id, termFreq):
+        "Get the inverted index"
         for key, val in termFreq.items():
             self.invertedIndex.setdefault(key, [])
             self.invertedIndex[key].append((post_id, val))
 
     def getTFIDF(self, count, invertedIndex):
+        "Calculate the TF-IDF scores"
         tfidf = {}
         for key, val in invertedIndex.items():
             tfidf.setdefault(key, [])
@@ -55,6 +59,7 @@ class TFIDF():
         return tfidf
 
     def saveTFIDF(self, file, tfidf):
+        "Save the TF-IF scores in a file"
         try:
             myFile = open(file, 'w')
         except:

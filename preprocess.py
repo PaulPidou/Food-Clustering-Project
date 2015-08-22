@@ -19,6 +19,7 @@ class PreProcess():
         self.main(postsFile, preproceed_postsFile)
 
     def main(self, postsFile, preproceed_postsFile):
+        "Pre-process the posts file"
         try:
             myFile = open(postsFile, 'r')
         except:
@@ -76,6 +77,7 @@ class PreProcess():
         myFile.close()
 
     def getEngTag(self, tag):
+        "Get the tag in English"
         tagName = TextBlob(tag.decode('utf-8'))
         tagName = tagName.words[0].singularize()
         
@@ -88,6 +90,7 @@ class PreProcess():
         return tagName.encode('utf-8')     
                 
     def isFoodTag(self, tag):
+        "Check if the tag is related to food"
         try:
             myFile = open(self.foodTagsFile, 'r')
         except:
@@ -103,6 +106,7 @@ class PreProcess():
 
 
     def getSummary(self, tag):
+        "Get the summary related to a given tag"
         try:
             summary = wikipedia.summary(str(tag))
         except:
@@ -121,6 +125,7 @@ class PreProcess():
         return summary
 
     def savePost(self, file, post_id, summary):
+        "Save the pre-processed posts"
         try:
             myFile = open(file, 'a')
         except:
@@ -137,6 +142,7 @@ class PreProcess():
         return True
 
     def checkIfNew(self, file, id_post):
+        "Check if a given post has been already treated"
         try:
             myFile = open(file, 'r')
         except:

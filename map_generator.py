@@ -14,6 +14,7 @@ class Map():
         self.drawMaps(locFile)
 
     def drawMaps(self, locFile):
+        "Generate the map for each cluster"
         try:
             myFile = open(locFile, 'r')
         except:

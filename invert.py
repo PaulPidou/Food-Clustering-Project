@@ -10,6 +10,7 @@ class Invert():
         self.invert(tfidfFile, scorePostsFile)
 
     def invert(self, tfidfFile, scorePostsFile):
+        "Invert the given TF-IDF file"
         try:
             myFile = open(tfidfFile, 'r')
         except:
@@ -41,6 +42,7 @@ class Invert():
 
 
     def normalizeL2(self, values):
+        "Apply a l2 normalization on the given array"
         l2norm, normValues = 0, []
 
         for val in values:
@@ -55,6 +57,7 @@ class Invert():
         return normValues
 
     def saveInvert(self, file, index):
+        "Save the inverted file"
         try:
             myFile = open(file, 'w')
         except:

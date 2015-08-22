@@ -7,7 +7,7 @@ import time, argparse, sys, os
 import operator
 
 class InstaFood():
-    def __init__(self, file):
+    def __init__(self, client_id, client_secret, file, duration):
         self.foodWords, self.locationWords = ['food', 'condiment', 'dish', 'cake', 'fruit', 'cuisine', 'meat'], ['country', 'region']
         self.foodTagsFile, self.noFoodTagsFile = 'tags/relatedToFood.txt', 'tags/unrelatedToFood.txt'
 
@@ -15,16 +15,19 @@ class InstaFood():
             if not os.path.exists(directory):
                 os.makedirs(directory)
                 
-        self.instaBot(file)
+        self.instaBot(client_id, client_secret, file, duration)
         
-    def instaBot(self, file):
-        api = InstagramAPI(client_id='dced40dd759c4019838e1c654ad7ab08', client_secret='428421a5921c4af2ad0fcb5e4e744992')
+    def instaBot(self, c_id, c_secret, file, duration):
+        "Retrieve the Instagram posts and analyze them"
+        api = InstagramAPI(client_id=c_id, client_secret=c_secret)
         
         posts, next = api.tag_recent_media(tag_name='food', count=30)
         temp, max_tag = next.split('max_tag_id=')
         max_tag = str(max_tag)
 
-        while True:
+        stop = time.time() + duration * 60
+
+        while time.time() < stop:
             print "[*] " + str(len(posts)) + " posts retrieved."
             for post in posts:
                 if self.isNewPost("log/posts.log", post.id):
@@ -79,6 +82,7 @@ class InstaFood():
                 break
 
     def isRelatedTo(self, tagName, wordsList):
+        "Check if a tag is related to a specific topic"
         try:
             page = wikipedia.WikipediaPage(title=tagName)
             definitions = Word(tagName).definitions
@@ -97,6 +101,7 @@ class InstaFood():
             return False        
 
     def isDefRelatedTo(self, definitions, wordsList):
+        "Check if definitions are related to a specific topic"
         for definition in definitions:
             d = TextBlob(definition)
             for word in d.words:
@@ -105,6 +110,7 @@ class InstaFood():
         return False
 
     def isTagRelatedToFood(self, tag):
+        "Check if a tag is related to food"
         try:
             myFile = open(self.foodTagsFile, 'r')
         except:
@@ -131,6 +137,7 @@ class InstaFood():
         return None
             
     def updateTags(self, file, tag):
+        "Update the tags list"
         try:
             myFile = open(file, 'a')
         except:
@@ -146,6 +153,7 @@ class InstaFood():
         return True
 
     def isNewPost(self, file, post_id):
+        "Check if a retrieved post is new or not"
         try:
             myFile = open(file, 'r')
         except:
@@ -161,6 +169,7 @@ class InstaFood():
         return True
 
     def savePost(self, file, post):
+        "Save a post"
         try:
             myFile = open(file, 'a')
         except:
@@ -195,6 +204,7 @@ class InstaFood():
         return True
 
     def writeTagLog(self, file, tag, related):
+        "Write the tags log"
         try:
             myFile = open(file, 'a')
         except:
@@ -216,6 +226,7 @@ class InstaFood():
         return True
 
     def writePostLog(self, file, post, langs, related):
+        "Write the posts log"
         try:
             myFile = open(file, 'a')
         except:
@@ -248,11 +259,14 @@ class InstaFood():
         
     
 if __name__ == "__main__":
-    directory, postsFile = "./files/", "posts.txt"
+    directory, postsFile, duration = "./files/", "posts.txt", 60
 
     parser = argparse.ArgumentParser(description='Food clustering project - Instagram Bot module', epilog="Developed by Paul Pidou.")
 
+    parser.add_argument('-ci', action="store", dest="client_id", help="Instagram Client ID [Required]", nargs=1, required=True)
+    parser.add_argument('-cs', action="store", dest="client_secret", help="Instagram Client Secret [Required]", nargs=1, required=True)
     parser.add_argument('-pf', action="store", dest="postsFile", help="File to save the instagram posts. By default: posts.txt", nargs=1)
+    parser.add_argument('-d', action="store", dest="duration", help="Duration of the posts retrieving. By default: 60 mins", nargs=1)
 
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
@@ -262,8 +276,10 @@ if __name__ == "__main__":
         print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
         print '[*] Exciting ...'
         sys.exit(0)
-
+        
     if args.postsFile != None:
         postsFile = args.postsFile[0]
+    if args.duration != None:
+        duration = args.duration[0]
         
-    InstaFood(directory + postsFile)
+    InstaFood(args.client_id[0], args.client_secret[0], directory + postsFile, duration)

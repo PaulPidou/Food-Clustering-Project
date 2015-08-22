@@ -40,6 +40,7 @@ class Location():
 
 
     def saveLocations(self, file, locations):
+        "Save the locations by cluster"
         try:
             myFile = open(file, 'w')
         except:

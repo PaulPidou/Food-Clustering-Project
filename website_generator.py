@@ -4,7 +4,7 @@ import os, os.path, sys, argparse
 import operator
 from selenium import webdriver
 
-class GenerateWebsite():
+class WebsiteGenerator():
     def __init__(self, postsFile, clusterFile, wordsFile, distFile):
         self.directory = os.path.dirname(os.path.abspath(__file__))
         self.maps = [name for name in os.listdir('./clustermap/') if not name.startswith('.') and os.path.isfile(os.path.join('./clustermap/', name))]
@@ -32,6 +32,7 @@ class GenerateWebsite():
         #browser.get('file://' + self.directory + self.webDir + 'index.html')
 
     def generateWrapper(self, key, ids, section, postsFile, clusterFile, wordsFile, distFile):
+        "Generate the web pages"
         try:
             if section != None:
                 website = open('.' + self.webDir + section + '_' + key + '.html', 'w')
@@ -85,6 +86,7 @@ class GenerateWebsite():
         website.close()
 
     def createClusterPage(self, pf, wf, df, nbCluster, ids, website):
+        "Generate a cluster web page"
         website.write('<h1 class="page-header">Cluster ' + nbCluster + '</h1>')
         website.write('<div class="panel-body"><ul class="nav nav-pills"><li class="active"><a href="#map-pills" data-toggle="tab"><i class="fa fa-globe fa-fw"></i> Map</a></li><li><a href="#picture-pills" data-toggle="tab"><i class="fa fa-camera-retro fa-fw"></i> Pictures</a></li><li><a href="#word-pills" data-toggle="tab"><i class="fa fa-list fa-fw"></i> Words</a></li><li><a href="#distance-pills" data-toggle="tab"><i class="fa fa-expand fa-fw"></i> Distances</a></li></ul>')
         website.write('<div class="tab-content" style="padding-top: 15px;"><div class="tab-pane fade in active" id="map-pills">')
@@ -152,6 +154,7 @@ class GenerateWebsite():
         return True
 
     def getMainWords(self, wf):
+        "Get the most representative word for each cluster"
         try:
             wordFile = open(wf, 'r')
         except:
@@ -169,6 +172,7 @@ class GenerateWebsite():
         return wordByCluster
 
     def getDistanceClusters(self, df):
+        "Get the distance between each cluster"
         try:
             distFile = open(df, 'r')
         except:
@@ -213,4 +217,4 @@ if __name__ == '__main__':
     if args.distanceClustersFile != None:
         distFile = args.distanceClustersFile[0]
         
-    GenerateWebsite(directory + postsFile, directory + clusterFile, directory + wordsFile, directory + distFile)
+    WebsiteGenerator(directory + postsFile, directory + clusterFile, directory + wordsFile, directory + distFile)
