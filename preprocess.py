@@ -5,10 +5,13 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 from textblob import TextBlob, Word
-import argparse, sys
+import argparse, sys, os
 
 class PreProcess():
     def __init__(self, postsFile, preproceed_postsFile):
+        if not os.path.exists('./files'):
+            os.makedirs('./files')
+                
         self.foodTagsFile = 'tags/relatedToFood.txt'
         self.stemmer = SnowballStemmer("english")
         self.stop_words = set(stopwords.words('english'))
@@ -151,9 +154,9 @@ class PreProcess():
         return True
 
 if __name__ == "__main__":
-    postsFile, preproceed_postsFile = "posts.txt", "preproceed_posts.txt"
+    directory, postsFile, preproceed_postsFile = "./files/", "posts.txt", "preproceed_posts.txt"
 
-    parser = argparse.ArgumentParser(description='Final project - Preprocess module', epilog="Developed by Paul Pidou.")
+    parser = argparse.ArgumentParser(description='Food clustering project - Preprocess module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-pf', action="store", dest="postsFile", help="Source posts file. By default: posts.txt", nargs=1) 
     parser.add_argument('-ppf', action="store", dest="preprocessFile", help="File to save the preprocess posts. By default: preproceed_posts.txt", nargs=1)
@@ -172,4 +175,4 @@ if __name__ == "__main__":
     if args.preprocessFile != None:
         preproceed_postsFile = args.preprocessFile[0]
         
-    PreProcess(postsFile, preproceed_postsFile)
+    PreProcess(directory + postsFile, directory + preproceed_postsFile)

@@ -2,10 +2,13 @@
 
 import random, math
 import operator
-import argparse, sys
+import argparse, sys, os
 
 class KMeans():
-    def __init__(self, scoredPostsFile, clustersFile, wordClustersFile):
+    def __init__(self, scoredPostsFile, clustersFile, wordClustersFile, distFile):
+        if not os.path.exists('./files'):
+            os.makedirs('./files')
+            
         try:
             myFile = open(scoredPostsFile, 'r')
         except:
@@ -19,7 +22,7 @@ class KMeans():
 
         self.main(scoredPostsFile, clustersFile, int(math.sqrt(count/2)))
         self.wordByCluster(scoredPostsFile, clustersFile, wordClustersFile)
-        self.saveDistanceBetweenCluster(wordClustersFile, 'distanceClusters.txt')
+        self.saveDistanceBetweenCluster(wordClustersFile, distFile)
 
     def main(self, scoredPostsFile, clustersFile, k):
         print "[*] Number of K picked : " + str(k)
@@ -303,13 +306,14 @@ class KMeans():
            
 
 if __name__ == "__main__":
-    scoredPostsFile, clustersFile, wordClustersFile = "scored_posts.txt", "clusters.txt", "wordClusters.txt"
+    directory, scoredPostsFile, clustersFile, wordClustersFile, distFile = "./files/", "scored_posts.txt", "clusters.txt", "wordClusters.txt", "distanceClusters.txt"
 
-    parser = argparse.ArgumentParser(description='Final project - Kmeans module', epilog="Developed by Paul Pidou.")
+    parser = argparse.ArgumentParser(description='Food clustering project - Kmeans module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="Source posts file. By default: scored_posts.txt", nargs=1) 
     parser.add_argument('-cf', action="store", dest="clustersFile", help="File to save the instagram ids by cluster. By default: clusters.txt", nargs=1)
-    parser.add_argument('-wcf', action="store", dest="wordClustersFile", help="File to save the main word by cluster. By default: wordClusters.txt", nargs=1)
+    parser.add_argument('-wcf', action="store", dest="wordClustersFile", help="File to save the words and weigth by cluster. By default: wordClusters.txt", nargs=1)
+    parser.add_argument('-dcf', action="store", dest="distanceClustersFile", help="File to save the distances between the centroids. By default: distanceClusters.txt", nargs=1)
 
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
@@ -326,6 +330,8 @@ if __name__ == "__main__":
         clustersFile = args.clustersFile[0]
     if args.wordClustersFile != None:
         wordClustersFile = args.wordClustersFile[0]
+    if args.distanceClustersFile != None:
+        distFile = args.distanceClustersFile[0]
         
-    KMeans(scoredPostsFile, clustersFile, wordClustersFile)
+    KMeans(directory + scoredPostsFile, directory + clustersFile, directory + wordClustersFile, directory + distFile)
     

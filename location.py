@@ -1,9 +1,12 @@
 #!/usr/bin/python
 
-import argparse, sys
+import argparse, sys, os
 
 class Location():
     def __init__(self, postsFile, clustersFile, locationFile):
+        if not os.path.exists('./files'):
+            os.makedirs('./files')
+                
         try:
             myFile = open(clustersFile, 'r')
         except:
@@ -53,9 +56,9 @@ class Location():
         return True
 
 if __name__ == "__main__":
-    postsFile, clustersFile, locFile = "posts.txt", "clusters.txt", "locations.txt"
+    directory, postsFile, clustersFile, locFile = "./files/", "posts.txt", "clusters.txt", "locations.txt"
 
-    parser = argparse.ArgumentParser(description='Final project - Location module', epilog="Developed by Paul Pidou.")
+    parser = argparse.ArgumentParser(description='Food clustering project - Location module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-pf', action="store", dest="postsFile", help="Source posts file. By default: posts.txt", nargs=1) 
     parser.add_argument('-cf', action="store", dest="clustersFile", help="Source clusters file. By default: clusters.txt", nargs=1)
@@ -77,4 +80,4 @@ if __name__ == "__main__":
     if args.locFile != None:
         locFile = args.locFile[0]
         
-    Location(postsFile, clustersFile, locFile)
+    Location(directory + postsFile, directory + clustersFile, directory + locFile)

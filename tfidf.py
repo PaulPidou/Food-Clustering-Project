@@ -3,10 +3,13 @@
 import math
 from textblob import TextBlob, Word
 import numpy as np
-import argparse, sys
+import argparse, sys, os
 
 class TFIDF():
     def __init__(self, preproceed_postsFile, tfidfFile):
+        if not os.path.exists('./files'):
+            os.makedirs('./files')
+                
         self.calculatedScore(preproceed_postsFile, tfidfFile)
 
     def calculatedScore(self, preproceed_postsFile, tfidfFile):
@@ -75,9 +78,9 @@ class TFIDF():
         return True
 
 if __name__ == "__main__":
-    preproceed_postsFile, tfidfFile = "preproceed_posts.txt", "tfidf.txt"
+    directory, preproceed_postsFile, tfidfFile = "./files/", "preproceed_posts.txt", "tfidf.txt"
 
-    parser = argparse.ArgumentParser(description='Final project - TF-IDF module', epilog="Developed by Paul Pidou.")
+    parser = argparse.ArgumentParser(description='Food clustering project - TF-IDF module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-ppf', action="store", dest="preprocessFile", help="Source preproceed posts. By default: preproceed_posts.txt", nargs=1)
     parser.add_argument('-tf', action="store", dest="tfidfFile", help="File to save the TF-IDF scores. By default: tfidf.txt", nargs=1) 
@@ -96,4 +99,4 @@ if __name__ == "__main__":
     if args.tfidfFile != None:
         tfidfFile = args.tfidfFile[0]
         
-    TFIDF(preproceed_postsFile, tfidfFile)
+    TFIDF(directory + preproceed_postsFile, directory + tfidfFile)

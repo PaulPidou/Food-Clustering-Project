@@ -3,13 +3,18 @@
 from instagram.client import InstagramAPI
 import wikipedia
 from textblob import TextBlob, Word
-import time, argparse, sys
+import time, argparse, sys, os
 import operator
 
 class InstaFood():
     def __init__(self, file):
         self.foodWords, self.locationWords = ['food', 'condiment', 'dish', 'cake', 'fruit', 'cuisine', 'meat'], ['country', 'region']
         self.foodTagsFile, self.noFoodTagsFile = 'tags/relatedToFood.txt', 'tags/unrelatedToFood.txt'
+
+        for directory in ['./log', './tags', './files']:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+                
         self.instaBot(file)
         
     def instaBot(self, file):
@@ -33,7 +38,7 @@ class InstaFood():
                         
                         if len(tagName) >= 3 and tagName != 'food':
                             lang = tagName.detect_language()
-                            print tagName, '->', lang
+                            print "[*] " + tagName, '->', lang
                             langs.setdefault(lang, 0)
                             langs[lang] += 1
                             
@@ -243,9 +248,9 @@ class InstaFood():
         
     
 if __name__ == "__main__":
-    postsFile = "posts.txt"
+    directory, postsFile = "./files/", "posts.txt"
 
-    parser = argparse.ArgumentParser(description='Final project - Instagram Bot module', epilog="Developed by Paul Pidou.")
+    parser = argparse.ArgumentParser(description='Food clustering project - Instagram Bot module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-pf', action="store", dest="postsFile", help="File to save the instagram posts. By default: posts.txt", nargs=1)
 
@@ -261,4 +266,4 @@ if __name__ == "__main__":
     if args.postsFile != None:
         postsFile = args.postsFile[0]
         
-    InstaFood(postsFile)
+    InstaFood(directory + postsFile)

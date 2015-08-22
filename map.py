@@ -1,22 +1,24 @@
 #!/usr/bin/python
 
-import os, sys
+import os, sys, argparse
 import pygmaps
-from instagram.client import InstagramAPI
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 
 class Map():
     def __init__(self, locFile):
         self.directory = os.path.dirname(os.path.abspath(__file__))
-        
+
+        for directory in ['./files', './clustermap']:
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+        self.drawMaps(locFile)
+
+    def drawMaps(self, locFile):
         try:
             myFile = open(locFile, 'r')
         except:
             print "[-] Fail to open the file."
-            sys.exit(0)
-
-        browser = webdriver.Firefox()
+            return False
         
         for line in myFile:
             mymap = pygmaps.maps(0, 0, 2)
@@ -39,13 +41,27 @@ class Map():
 
             url = '/clustermap/clustermap_' + infos[0] +'.html'
             mymap.draw('.' + url)
-            browser.get('file://' + self.directory + url)
-
-            body = browser.find_element_by_tag_name("body")
-            body.send_keys(Keys.COMMAND + 't') # Replace by Keys.CONTROL if you are not on MAC OS X
-
-        body.send_keys(Keys.COMMAND + 'w') # Replace by Keys.CONTROL if you are not on MAC OS X
+            
         myFile.close()
+        return True
 
 if __name__ == '__main__':
-    Map("locations.txt")
+    directory, locFile = "./files/", "locations.txt"
+
+    parser = argparse.ArgumentParser(description='Food clustering project - Map module', epilog="Developed by Paul Pidou.")
+
+    parser.add_argument('-lf', action="store", dest="locFile", help="Source locations file (Locations by cluster). By default: locations.txt", nargs=1)
+
+    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+
+    args, unknown = parser.parse_known_args()
+
+    if unknown:
+        print '[-] Unknown argument(s) : ' + str(unknown).strip('[]')
+        print '[*] Exciting ...'
+        sys.exit(0)
+
+    if args.locFile != None:
+        locFile = args.locFile[0]
+        
+    Map(directory + locFile)
