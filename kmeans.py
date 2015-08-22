@@ -17,8 +17,9 @@ class KMeans():
             count += 1
         myFile.close()
 
-        self.main(scoredPostsFile, int(math.sqrt(count/2)))
+        self.main(scoredPostsFile, clustersFile, int(math.sqrt(count/2)))
         self.wordByCluster(scoredPostsFile, clustersFile, wordClustersFile)
+        self.saveDistanceBetweenCluster(wordClustersFile, 'distanceClusters.txt')
 
     def main(self, scoredPostsFile, clustersFile, k):
         print "[*] Number of K picked : " + str(k)
@@ -255,7 +256,52 @@ class KMeans():
             myFile.write('\n')
         myFile.close()
         return True
-                    
+
+    def saveDistanceBetweenCluster(self, wordClusterFile, distanceCluster):
+        try:
+            wordFile = open(wordClusterFile, 'r')
+        except:
+            print "[-] Fail to open the file."
+            return False
+
+        wordsByCluster = {}
+        for line in wordFile:
+            infos = line.strip().split('\t')
+
+            coords = {}
+            for c in infos[1].split(' '):
+                tup = c.split(':')
+                coords.setdefault(tup[0], float(tup[1]))
+
+            wordsByCluster.setdefault(infos[0], coords)
+
+        wordFile.close()
+
+        try:
+            wordFile = open(wordClusterFile, 'r')
+            distanceFile = open(distanceCluster, 'w')
+        except:
+            print "[-] Fail to open the file."
+            return False
+
+        for line in wordFile:
+            for k, v in wordsByCluster.items():
+                infos = line.strip().split('\t')
+
+                if infos[0] != k:
+                    coords = {}
+                    for c in infos[1].split(' '):
+                        tup = c.split(':')
+                        coords.setdefault(tup[0], float(tup[1]))
+
+                    distance = self.getDistance(v, coords)
+                    distanceFile.write(k + '\t' + infos[0] + '\t' + str(distance) + '\n')
+
+        wordFile.close()
+        distanceFile.close()
+        return True
+           
+
 if __name__ == "__main__":
     scoredPostsFile, clustersFile, wordClustersFile = "scored_posts.txt", "clusters.txt", "wordClusters.txt"
 
