@@ -3,6 +3,8 @@
 ## General principle
 The general principle of the food clustering project is to retrieve the Instagram posts related to food over a certain period of time and cluster them. The clustering is performed thanks to the tags put by the user.
 
+An example of the website produced by the 'Website Generator module' can be found here : http://www.paul-pidou.name/projects/food-clustering/pages/index.html
+
 ## Ressources used
 - Instagram API
 - Wikipedia API for Python
