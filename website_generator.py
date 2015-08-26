@@ -3,12 +3,21 @@
 import os, os.path, sys, argparse
 import operator
 from selenium import webdriver
+import shutil
 
 class WebsiteGenerator():
     def __init__(self, postsFile, clusterFile, wordsFile, distFile):
+        print "[*] Website generator module starting"
+        
         self.directory = os.path.dirname(os.path.abspath(__file__))
         self.maps = [name for name in os.listdir('./clustermap/') if not name.startswith('.') and os.path.isfile(os.path.join('./clustermap/', name))]
         self.webDir = "/website/pages/"
+
+        if not os.path.exists('./website/clustermap/'):
+            os.makedirs('./website/clustermap/')
+
+        for m in self.maps:
+            shutil.copy('./clustermap/' + m, './website/clustermap/')
 
         try:
             myFile = open(clusterFile, 'r')
@@ -16,17 +25,22 @@ class WebsiteGenerator():
             print "[-] Fail to open the file."
             sys.exit(0)
 
-        keyByCluster = {}
+        self.keyByCluster, self.cluster_ids = {}, []
         for line in myFile:
             infos = line.strip().split('\t')
-            keyByCluster.setdefault(infos[0], infos[1].split(' '))
+            self.keyByCluster.setdefault(infos[0], infos[1].split(' '))
+            self.cluster_ids.append(int(infos[0]))
 
         myFile.close()
 
-        self.generateWrapper('index.html', keyByCluster, None, postsFile, clusterFile, wordsFile, distFile)
+        self.cluster_ids.sort()                              
 
-        for key, ids in keyByCluster.items():
+        self.generateWrapper('index.html', self.keyByCluster, None, postsFile, clusterFile, wordsFile, distFile)
+
+        for key, ids in self.keyByCluster.items():
             self.generateWrapper(key, ids, 'cluster', postsFile, clusterFile, wordsFile, distFile)
+
+        self.generateWrapper('about.html', None, None, None, None, None, None)
 
         #browser = webdriver.Firefox()
         #browser.get('file://' + self.directory + self.webDir + 'index.html')
@@ -49,14 +63,26 @@ class WebsiteGenerator():
 
         header.close()
 
-        for clusterMap in self.maps:
-            number = clusterMap[11:-5]
-            website.write('<li><a href="cluster_' + number + '.html">Cluster ' + number + '</a></li>')
+        for i in self.cluster_ids:
+            website.write('<li><a href="cluster_' + str(i) + '.html">Cluster ' + str(i) + '</a></li>')
 
-        website.write('</ul></li></ul><p class="text-muted text-center" style="margin-top: 5px">Developed by Paul Pidou</p></div></div></nav>')
+        website.write('</ul></li><li><a href="about.html"><i class="fa fa-question"></i> About the project</a></li>')
+        website.write('</ul><p class="text-muted text-center" style="margin-top: 5px">Developed by Paul Pidou</p></div></div></nav>')
         website.write('<div id="page-wrapper"><div class="container-fluid"><div class="row"><div class="col-lg-12">')
 
-        if section == None:
+        if key == 'about.html':
+            try:
+                myFile = open('.' + self.webDir + 'description.html', 'r')
+            except:
+                print "[-] Fail to generate the about page."
+                return None
+
+            for line in myFile:
+                website.write(line)
+
+            myFile.close()
+
+        elif key == 'index.html':
             wordByCluster = self.getMainWords(wordsFile)
             distanceClusters = self.getDistanceClusters(distFile)
             
@@ -67,7 +93,7 @@ class WebsiteGenerator():
             website.write('<h1 class="page-header">Summary (' + str(nbPosts) + ' Posts / ' + str(len(ids.keys())) + ' Clusters)</h1>')
             website.write('<div class="panel-body"><div class="table-responsive"><table class="table">')
             website.write('<thead><tr><th>Cluster</th><th>Number of posts</th><th>Main word</th><th>Closest cluster</th><th>Link</th></tr></thead><tbody>')
-            for i in range(len(ids.keys())):
+            for i in self.cluster_ids:
                 dists = distanceClusters[str(i)]
                 sorted_dists = sorted(dists.items(), key=operator.itemgetter(1))
                 website.write('<tr><td>' + str(i) + '</td><td>' + str(len(ids[str(i)])) + '</td><td>' + wordByCluster[str(i)] + '</td><td>' + sorted_dists[0][0] + '</td><td><a href="cluster_' + str(i) + '.html"><button type="button" class="btn btn-default btn-circleg"><i class="fa fa-angle-right"></i></button></a></td></tr>')
@@ -90,7 +116,7 @@ class WebsiteGenerator():
         website.write('<h1 class="page-header">Cluster ' + nbCluster + '</h1>')
         website.write('<div class="panel-body"><ul class="nav nav-pills"><li class="active"><a href="#map-pills" data-toggle="tab"><i class="fa fa-globe fa-fw"></i> Map</a></li><li><a href="#picture-pills" data-toggle="tab"><i class="fa fa-camera-retro fa-fw"></i> Pictures</a></li><li><a href="#word-pills" data-toggle="tab"><i class="fa fa-list fa-fw"></i> Words</a></li><li><a href="#distance-pills" data-toggle="tab"><i class="fa fa-expand fa-fw"></i> Distances</a></li></ul>')
         website.write('<div class="tab-content" style="padding-top: 15px;"><div class="tab-pane fade in active" id="map-pills">')
-        website.write('<iframe src="../../clustermap/clustermap_' + nbCluster + '.html" style="border:none;height: 600px;" width=100%></iframe>')                          
+        website.write('<iframe src="../clustermap/clustermap_' + nbCluster + '.html" style="border:none;height: 600px;" width=100%></iframe>')                          
         website.write('</div><div class="tab-pane fade" id="picture-pills">')
 
         try:

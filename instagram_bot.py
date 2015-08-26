@@ -8,6 +8,8 @@ import operator
 
 class InstaFood():
     def __init__(self, client_id, client_secret, file, duration):
+        print "[*] Instagram bot module starting"
+        
         self.foodWords, self.locationWords = ['food', 'condiment', 'dish', 'cake', 'fruit', 'cuisine', 'meat'], ['country', 'region']
         self.foodTagsFile, self.noFoodTagsFile = 'tags/relatedToFood.txt', 'tags/unrelatedToFood.txt'
 
@@ -15,7 +17,7 @@ class InstaFood():
             if not os.path.exists(directory):
                 os.makedirs(directory)
                 
-        self.instaBot(client_id, client_secret, file, duration)
+        self.instaBot(client_id, client_secret, file, int(duration))
         
     def instaBot(self, c_id, c_secret, file, duration):
         "Retrieve the Instagram posts and analyze them"
@@ -40,13 +42,22 @@ class InstaFood():
                         tagName = tagName.words[0].singularize()
                         
                         if len(tagName) >= 3 and tagName != 'food':
-                            lang = tagName.detect_language()
+                            try:
+                                lang = tagName.detect_language()
+                            except:
+                                print "[-] Fail to detect the language."
+                                continue
+                            
                             print "[*] " + tagName, '->', lang
                             langs.setdefault(lang, 0)
                             langs[lang] += 1
                             
                             if lang != 'en':
-                                tagName = tagName.translate(from_lang=lang, to='en')
+                                try:
+                                    tagName = tagName.translate(from_lang=lang, to='en')
+                                except:
+                                    print "[-] Fail to translate the tag."
+                                    continue
                                 print "[*] Traduction: ", tagName
 
                             tagRelatedToFood = self.isTagRelatedToFood(tagName)

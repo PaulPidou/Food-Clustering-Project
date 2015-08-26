@@ -4,6 +4,8 @@ import argparse, sys, os
 
 class Location():
     def __init__(self, postsFile, clustersFile, locationFile):
+        print "[*] Location module starting"
+        
         if not os.path.exists('./files'):
             os.makedirs('./files')
                 

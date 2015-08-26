@@ -12,21 +12,21 @@ from map_generator import *
 from website_generator import *
 
 class Application():
-    def __init__(self, directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clusterFile, wordsFile, distFile, locFile):
-        self.main(directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clusterFile, wordsFile, distFile, locFile)
+    def __init__(self, directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clustersFile, wordsFile, distFile, locFile):
+        self.main(directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clustersFile, wordsFile, distFile, locFile)
 
-    def main(self, directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clusterFile, wordsFile, distFile, locFile):
+    def main(self, directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clustersFile, wordsFile, distFile, locFile):
         InstaFood(args.client_id[0], args.client_secret[0], directory + postsFile, duration)
         PreProcess(directory + postsFile, directory + preproceed_postsFile)
         TFIDF(directory + preproceed_postsFile, directory + tfidfFile)
-        Invert(directory + tfidfFile, directory + scorePostsFile)
+        Invert(directory + tfidfFile, directory + scoredPostsFile)
         KMeans(directory + scoredPostsFile, directory + clustersFile, directory + wordsFile, directory + distFile)
         Location(directory + postsFile, directory + clustersFile, directory + locFile)
         Map(directory + locFile)
-        WebsiteGenerator(directory + postsFile, directory + clusterFile, directory + wordsFile, directory + distFile)
+        WebsiteGenerator(directory + postsFile, directory + clustersFile, directory + wordsFile, directory + distFile)
 
 if __name__ == "__main__":
-    directory, postsFile, preproceed_postsFile, tfidfFile, scoredPostsFile, clusterFile, wordsFile, distFile, locFile = "./files/", "posts.txt", "preproceed_posts.txt", "tfidf.txt",  "scored_posts.txt", "clusters.txt", "wordClusters.txt", "distanceClusters.txt", "locations.txt"
+    directory, postsFile, preproceed_postsFile, tfidfFile, scoredPostsFile, clustersFile, wordsFile, distFile, locFile = "./files/", "posts.txt", "preproceed_posts.txt", "tfidf.txt",  "scored_posts.txt", "clusters.txt", "wordClusters.txt", "distanceClusters.txt", "locations.txt"
     duration = 60
     
     parser = argparse.ArgumentParser(description='Food clustering project - Main application', epilog="Developed by Paul Pidou.")
@@ -37,7 +37,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', action="store", dest="duration", help="Duration of the posts retrieving. By default: 60 mins", nargs=1)
     parser.add_argument('-ppf', action="store", dest="preprocessFile", help="File to save the preprocess posts. By default: preproceed_posts.txt", nargs=1)
     parser.add_argument('-tf', action="store", dest="tfidfFile", help="File to save the TF-IDF scores. By default: tfidf.txt", nargs=1)
-    parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="File to save the score posts. By default: scored_posts.txt", nargs=1)
+    parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="File to save the scored posts. By default: scored_posts.txt", nargs=1)
     parser.add_argument('-cf', action="store", dest="clustersFile", help="File to save the instagram ids by cluster. By default: clusters.txt", nargs=1)
     parser.add_argument('-wcf', action="store", dest="wordClustersFile", help="File to save the words and weigth by cluster. By default: wordClusters.txt", nargs=1)
     parser.add_argument('-dcf', action="store", dest="distanceClustersFile", help="File to save the distances between the centroids. By default: distanceClusters.txt", nargs=1)
@@ -71,4 +71,4 @@ if __name__ == "__main__":
     if args.locFile != None:
         locFile = args.locFile[0]
 
-    Application(directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clusterFile, wordsFile, distFile, locFile)
+    Application(directory, postsFile, duration, preproceed_postsFile, tfidfFile, scoredPostsFile, clustersFile, wordsFile, distFile, locFile)

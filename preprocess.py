@@ -9,8 +9,17 @@ import argparse, sys, os
 
 class PreProcess():
     def __init__(self, postsFile, preproceed_postsFile):
+        print "[*] Preprocess module starting"
+        
         if not os.path.exists('./files'):
             os.makedirs('./files')
+
+        try:
+            myFile = open(preproceed_postsFile, 'w')
+        except:
+            print "[-] Fail to create the file."
+            sys.exit(0)
+        myFile.close()
                 
         self.foodTagsFile = 'tags/relatedToFood.txt'
         self.stemmer = SnowballStemmer("english")

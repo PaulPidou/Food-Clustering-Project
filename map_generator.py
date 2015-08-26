@@ -5,6 +5,8 @@ import pygmaps
 
 class Map():
     def __init__(self, locFile):
+        print "[*] Map module starting"
+        
         self.directory = os.path.dirname(os.path.abspath(__file__))
 
         for directory in ['./files', './clustermap']:
@@ -24,6 +26,11 @@ class Map():
         for line in myFile:
             mymap = pygmaps.maps(0, 0, 2)
             infos = line.strip().split('\t')
+
+            if len(infos) == 1:
+                url = '/clustermap/clustermap_' + infos[0] +'.html'
+                mymap.draw('.' + url)
+                continue
 
             locs = infos[1].split("Location: ")
             locs.pop(0)

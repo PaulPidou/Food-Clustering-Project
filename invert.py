@@ -4,6 +4,8 @@ import argparse, sys, os
 
 class Invert():
     def __init__(self, tfidfFile, scorePostsFile):
+        print "[*] Invert index module starting"
+        
         if not os.path.exists('./files'):
             os.makedirs('./files')
                 
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Food clustering project - Invert index module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-tf', action="store", dest="tfidfFile", help="Source TFIDF file. By default: tfidf.txt", nargs=1)
-    parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="File to save the score posts. By default: scored_posts.txt", nargs=1)
+    parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="File to save the scored posts. By default: scored_posts.txt", nargs=1)
 
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
 
@@ -102,4 +104,4 @@ if __name__ == "__main__":
     if args.scoredPostsFile != None:
         scoredPostsFile = args.scoredPostsFile[0]
         
-    Invert(directory + tfidfFile, directory + scorePostsFile)
+    Invert(directory + tfidfFile, directory + scoredPostsFile)

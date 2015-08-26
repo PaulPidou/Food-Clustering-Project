@@ -7,6 +7,8 @@ import argparse, sys, os
 
 class TFIDF():
     def __init__(self, preproceed_postsFile, tfidfFile):
+        print "[*] TF-IDF module starting"
+        
         if not os.path.exists('./files'):
             os.makedirs('./files')
                 

@@ -6,6 +6,8 @@ import argparse, sys, os
 
 class KMeans():
     def __init__(self, scoredPostsFile, clustersFile, wordClustersFile, distFile):
+        print "[*] K-Means module starting"
+        
         if not os.path.exists('./files'):
             os.makedirs('./files')
             
@@ -319,7 +321,7 @@ class KMeans():
 if __name__ == "__main__":
     directory, scoredPostsFile, clustersFile, wordClustersFile, distFile = "./files/", "scored_posts.txt", "clusters.txt", "wordClusters.txt", "distanceClusters.txt"
 
-    parser = argparse.ArgumentParser(description='Food clustering project - Kmeans module', epilog="Developed by Paul Pidou.")
+    parser = argparse.ArgumentParser(description='Food clustering project - K-Means module', epilog="Developed by Paul Pidou.")
 
     parser.add_argument('-spf', action="store", dest="scoredPostsFile", help="Source posts file. By default: scored_posts.txt", nargs=1) 
     parser.add_argument('-cf', action="store", dest="clustersFile", help="File to save the instagram ids by cluster. By default: clusters.txt", nargs=1)
