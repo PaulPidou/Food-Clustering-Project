@@ -4,11 +4,11 @@
 The general principle of the food clustering project is to retrieve the Instagram posts related to food over a certain period of time and cluster them. The clustering is performed thanks to the tags put by the user.
 
 ## Ressources used
-Instagram API
-Wikipedia API for Python
-TextBlob Python library
-NLTK - Natural Language Toolkit
-pygmaps - Python wrapper for Google Maps
+- Instagram API
+- Wikipedia API for Python
+- TextBlob Python library
+- NLTK - Natural Language Toolkit
+- pygmaps - Python wrapper for Google Maps
 
 ## Modules
 
