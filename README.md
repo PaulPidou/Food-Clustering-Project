@@ -11,6 +11,7 @@ An example of the website produced by the 'Website Generator module' can be foun
 - TextBlob Python library
 - NLTK - Natural Language Toolkit
 - pygmaps - Python wrapper for Google Maps
+- SB Admin - Boostrap theme
 
 ## Modules
 
@@ -126,7 +127,7 @@ optional arguments:
 ````
  
 ### Website Generator module
-This module generates this website.
+This module generates the website that presents the results (based on https://github.com/IronSummitMedia/startbootstrap-sb-admin).
 
 ```
 usage: website_generator.py [-h] [-pf POSTSFILE] [-cf CLUSTERSFILE]
