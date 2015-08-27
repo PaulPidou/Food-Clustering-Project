@@ -127,7 +127,7 @@ optional arguments:
 ````
  
 ### Website Generator module
-This module generates the website that presents the results (based on https://github.com/IronSummitMedia/startbootstrap-sb-admin).
+This module generates the website that presents the results (Need SB Admin theme -  https://github.com/IronSummitMedia/startbootstrap-sb-admin and FancyBox - http://fancybox.net/ to work correclty).
 
 ```
 usage: website_generator.py [-h] [-pf POSTSFILE] [-cf CLUSTERSFILE]
